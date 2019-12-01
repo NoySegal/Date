@@ -404,15 +404,14 @@ public class Date {
         System.out.println("\t" + d6 + " tomorrow is : " + d6.tomorrow());
         Date d7 = new Date(31, 12, 2019);
         System.out.println("\t" + d7 + " tomorrow is : " + d7.tomorrow());
-        System.out.println("\n********** Test Date - Finished **********\n");
 
-        System.out.println("\n********** NOY TEST - START **********\n");
-        Date noy = new Date(1, 12, 2019);
-        System.out.println("Noy date is: " + noy);
-        Date noyTomorrow = noy.tomorrow();
-        System.out.println("NoyTomorrow date is (should be 1.1.2000): " + noyTomorrow);
-        System.out.println("Noy weekday is: " + noy.dayInWeek());
-        System.out.println("Distance between: " + noy.difference(new Date(31, 12, 2019)));
-        System.out.println("\n********** NOY TEST - FINISHED **********\n");
+
+        Date d8 = new Date(1, 12, 2019);
+        System.out.println("Noy date is: " + d8);
+        Date d9 = d8.tomorrow();
+        System.out.println("NoyTomorrow date is (should be 1.1.2000): " + d9);
+        System.out.println("Noy weekday is: " + d8.dayInWeek());
+        System.out.println("Distance between: " + d8.difference(new Date(31, 12, 2019)));
+        System.out.println("\n********** Test Date - Finished **********\n");
     }
 }
