@@ -200,18 +200,25 @@ public class Date {
     public int dayInWeek() {
         int D = _day;
         int M = _month;
+        int Y;
+        int C;
         //January and February treated as 13 and 14 as of last year.
         if (M < MAR) {
             M += MONTHS_IN_YEAR;
+
+            //Below March, year is treated to be the last year.
+            Y = (_year - 1) % 100;
+            C = (_year - 1) / 100;
+        } else {
+            //dividing by 100 to get first two digits and last two digits of the year
+            Y = _year % 100;
+            C = _year / 100;
         }
-        //dividing by 100 to get first two digits and last two digits of the year
-        int Y = _year % 100;
-        int C = _year / 100;
 
         //using the formula: Day = (D + (26×(M+1))/10 + Y + Y/4 + C/4 - 2×C) mod 7
         int res = (D + (26 * (M + 1)) / 10 + Y + Y / 4 + C / 4 - 2 * C) % 7;
 
-        //Sometimes the result is negative, so Math.floorMod fix the issue by transfering the result to 0-6
+        //Sometimes the result is negative, so Math.floorMod fix the issue by transferring the result to 0-6
         return Math.floorMod(res, 7);
     }
 
@@ -406,7 +413,7 @@ public class Date {
         System.out.println("\t" + d7 + " tomorrow is : " + d7.tomorrow());
 
 
-        Date d8 = new Date(1, 12, 2019);
+        Date d8 = new Date(29, 2, 2019);
         System.out.println("Noy date is: " + d8);
         Date d9 = d8.tomorrow();
         System.out.println("NoyTomorrow date is (should be 1.1.2000): " + d9);
