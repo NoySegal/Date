@@ -258,6 +258,7 @@ public class FoodItem {
 
     /**
      * Sets the food item price if the parameter is valid (positive number)
+     *
      * @param n the new price to set if valid
      */
     public void setPrice(int n) {
