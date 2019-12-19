@@ -14,11 +14,26 @@ public class Stock {
 
     /**
      * Default Constructor
-     *
      * Creates a new Stock object
      */
     public Stock() {
+
         _stock = new FoodItem[MAX_STOCK];
+        _noOfItems = 0;
     }
 
+    /**
+     * @return the number of products currently in stock
+     */
+    public int getNumOfItems() {
+
+        return _noOfItems;
+    }
+
+    public boolean addItem(FoodItem newItem) {
+        //TODO this method
+        //true if item already in array or if not and arr not full..
+        //false if item not in arr and arr is full
+        return false;
+    }
 }
