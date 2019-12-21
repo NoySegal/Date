@@ -1,3 +1,6 @@
+//todo check with official .class files
+//todo run testers
+
 /**
  * This class represents a stock object.
  *
@@ -30,10 +33,192 @@ public class Stock {
         return _noOfItems;
     }
 
+    /**
+     * Searches the _stock array for similar FoodItem with the same name and catalogue number as newItem.
+     *
+     * @param newItem is a FoodItem object that is used to check for similar name and catalogue number.
+     * @return index of the first similar item (by name and catalogue number), if not found returns -1.
+     */
+    private int indexOfFirstSimilarItem(FoodItem newItem) {
+        int index = 0;
+
+        for (int i = 0; i < _noOfItems; i++) {
+            if (newItem.getName().equals(_stock[i].getName()) && newItem.getCatalogueNumber() == _stock[i].getCatalogueNumber()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Searches the _stock array for identical FoodItem newItem, starting the search from the first similar item.
+     *
+     * @param newItem    is a FoodItem object that is used to check for completely identical item.
+     * @param startIndex is the index of the first item that has similar name and catalogue number in _stock array.
+     * @return index of identical item (including production/expiry dates) if found in _stock array, otherwise returns -1.
+     */
+    private int indexOfIdenticalItem(FoodItem newItem, int startIndex) {
+        int i = startIndex;
+        while (i < _noOfItems && newItem.getName().equals(_stock[i].getName()) && newItem.getCatalogueNumber() == _stock[i].getCatalogueNumber()) {
+            if (_stock[i].equals(newItem)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    } //todo ask in the forum if its okay to return -1 if item not found
+
+    /**
+     * Tries to insert a new food item into _stock array, if identical item is existing, it adds to it's quantity.
+     * If similar items are existing, it adds the new item before the similar items.
+     * Otherwise, it inserts it based on the Catalogue number order in the _stock array.
+     *
+     * @param newItem is a FoodItem object to be inserted into _stock array.
+     * @return true if newItem was successfully inserted into _stock, false otherwise.
+     */
     public boolean addItem(FoodItem newItem) {
-        //TODO this method
-        //true if item already in array or if not and arr not full..
-        //false if item not in arr and arr is full
-        return false;
+        // Holds the first index of same name and catalogue number item if existed, otherwise holds -1
+        int firstSimilarIndex = indexOfFirstSimilarItem(newItem);
+
+        // last index if array is populated
+        int j = _noOfItems;
+
+        if (firstSimilarIndex == -1) { // No similar items in stock
+
+            if (_noOfItems == MAX_STOCK) { // Stock array is full
+                return false;
+            } else { // There is room for a new stock entry
+
+                while (j > 0 && _stock[j - 1].getCatalogueNumber() > newItem.getCatalogueNumber()) {
+                    _stock[j] = _stock[j - 1];
+                    j--;
+                }
+                _stock[j] = new FoodItem(newItem);
+                _noOfItems++;
+                return true;
+            }
+        } else { //There is at least one similar item in stock
+
+            int identicalItemsIndex = indexOfIdenticalItem(newItem, firstSimilarIndex);
+            if (identicalItemsIndex == -1) { // No identical item found
+                if (_noOfItems == MAX_STOCK) {
+                    return false;
+                } else {
+                    //insert before first similar
+                    while (j > firstSimilarIndex) {
+                        _stock[j] = _stock[j - 1];
+                        j--;
+                    }
+                    _stock[j] = new FoodItem(newItem);
+                    _noOfItems++;
+                    return true;
+                }
+            } else { // Identical item found -> increase item Quantity
+                _stock[identicalItemsIndex].setQuantity(_stock[identicalItemsIndex].getQuantity() + newItem.getQuantity());
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Creates a list of items (with different name/catalogue number) if each item's quantity is below the amount parameter.
+     * Items with identical name and catalogue number will be compared to the amount with their mutual quantities.
+     *
+     * @param amount is the max number that if an item quantity passes, is not adjoined to the list.
+     * @return a list of items to order
+     */
+    public String order(int amount) {
+
+        String items = "";
+
+        int currentItemAmount;
+
+        int j;
+
+        int lastIndexOfSimilarItem;
+
+        for (int i = 0; i < _noOfItems; i++) {
+
+            currentItemAmount = _stock[i].getQuantity();
+            j = i + 1;
+            lastIndexOfSimilarItem = i;
+            while (j < _noOfItems && _stock[j].getName().equals(_stock[i].getName()) && _stock[j].getCatalogueNumber() == _stock[i].getCatalogueNumber()) {
+                currentItemAmount += _stock[j].getQuantity();
+                lastIndexOfSimilarItem = j;
+                j++;
+            }
+
+            // Prevents recounting items that were previously counted
+            i = lastIndexOfSimilarItem;
+
+            if (currentItemAmount < amount) {
+                if (i == _noOfItems - 1) {
+                    items += _stock[i].getName();
+                } else {
+                    items += _stock[i].getName() + ", ";
+                }
+            }
+        }
+
+        return items;
+    }
+
+    /**
+     * Counts items in the stock if the parameter temp (a refrigerator temperature) is between the respective item min/max temperatures.
+     *
+     * @param temp is the temperature in another refrigerator.
+     * @return number of amount that can be moved to another refrigerator.
+     */
+    public int howMany(int temp) {
+
+        int itemsToMove = 0; // todo check how to treat quantity
+
+        for (int i = 0; i < _noOfItems; i++) {
+            if (_stock[i].getMinTemperature() <= temp && _stock[i].getMaxTemperature() >= temp) {
+                itemsToMove++;
+            }
+        }
+
+        return itemsToMove;
+    }
+
+    /**
+     * Remove food items from stock that have expiry date before the Date parameter, while keeping the array organized.
+     *
+     * @param d is the date object to be compared with the expiry dates.
+     */
+    public void removeAfterDate(Date d) {
+
+        for (int i = 0; i < _noOfItems; i++) {
+
+            if (_stock[i].getExpiryDate().before(d)) {
+                for (int j = i; j < _noOfItems - 1; j++) {
+                    _stock[j] = _stock[j + 1];
+                }
+                _stock[_noOfItems - 1] = null;
+                _noOfItems--;
+            }
+        }
+    }
+
+    /**
+     * Finds the most expensive food item in stock.
+     *
+     * @return FoodItem object of the most expensive item in stock.
+     */
+    public FoodItem mostExpensive() {
+        if (_noOfItems == 0) {
+            return null;
+        }
+
+        FoodItem mostExpensiveItem = _stock[0];
+
+        for (int i = 1; i < _noOfItems; i++) {
+
+            if (_stock[i].getPrice() > mostExpensiveItem.getPrice()) {
+                mostExpensiveItem = _stock[i];
+            }
+        }
+        return new FoodItem(mostExpensiveItem);
     }
 }
