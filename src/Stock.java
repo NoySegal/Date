@@ -171,15 +171,28 @@ public class Stock {
      */
     public int howMany(int temp) {
 
-        int itemsToMove = 0; // todo check how to treat quantity
+        int itemsToMove = 0;
 
         for (int i = 0; i < _noOfItems; i++) {
             if (_stock[i].getMinTemperature() <= temp && _stock[i].getMaxTemperature() >= temp) {
-                itemsToMove++;
+                itemsToMove += _stock[i].getQuantity();
             }
         }
 
         return itemsToMove;
+    }
+
+    /**
+     * Removes Food Item object from the stock array at a given index.
+     *
+     * @param index is the index of item to be removed from _stock.
+     */
+    private void removeItemAtIndex(int index) {
+        for (int j = index; j < _noOfItems - 1; j++) {
+            _stock[j] = _stock[j + 1];
+        }
+        _stock[_noOfItems - 1] = null;
+        _noOfItems--;
     }
 
     /**
@@ -192,11 +205,8 @@ public class Stock {
         for (int i = 0; i < _noOfItems; i++) {
 
             if (_stock[i].getExpiryDate().before(d)) {
-                for (int j = i; j < _noOfItems - 1; j++) {
-                    _stock[j] = _stock[j + 1];
-                }
-                _stock[_noOfItems - 1] = null;
-                _noOfItems--;
+
+                removeItemAtIndex(i);
             }
         }
     }
@@ -220,5 +230,103 @@ public class Stock {
             }
         }
         return new FoodItem(mostExpensiveItem);
+    }
+
+    /**
+     * Counts the total quantity of the items in the stock.
+     *
+     * @return the total number of quantities in stock.
+     */
+    public int howManyPieces() {
+        int counter = 0;
+
+        for (int i = 0; i < _noOfItems; i++) {
+            counter += _stock[i].getQuantity();
+        }
+
+        return counter;
+    }
+
+    /**
+     * @return a string representation of the stock.
+     */
+    public String toString() {
+        String stockHolder = "";
+
+        for (int i = 0; i < _noOfItems; i++) {
+            stockHolder += _stock[i].toString() + "\n";
+        }
+
+        return stockHolder;
+    }
+
+    /**
+     * Updates the stock array and remove items that were sold given by the itemList.
+     *
+     * @param itemsList is a list of Strings representing items that were sold
+     */
+    public void updateStock(String[] itemsList) {
+
+        boolean itemUpdatedFlag;
+
+        for (int i = 0; i < itemsList.length; i++) {
+            itemUpdatedFlag = false;
+            for (int j = 0; j < _noOfItems && !itemUpdatedFlag; j++) {
+                if (itemsList[i].equals(_stock[j].getName())) {
+                    _stock[j].setQuantity(_stock[j].getQuantity() - 1);
+                    if (_stock[j].getQuantity() == 0) {
+
+                        removeItemAtIndex(j);
+                    }
+                    itemUpdatedFlag = true;
+                }
+            }
+        }
+    }
+
+    public int getTempOfStock() {
+
+        
+    }
+
+    public static void main(String[] args) {
+        System.out.println("\n*********************** START OF STOCK TESTER**************************************");
+        // Stock
+        Date t1 = new Date(1, 1, 2000);
+        Date t2 = new Date(1, 1, 2001);
+        Date t3 = new Date(1, 1, 2002);
+        FoodItem f1 = new FoodItem("Milk", 1111, 12, t1, t2, 7, 10, 5);
+        FoodItem f2 = new FoodItem("Honey", 2222, 2, t1, t3, 6, 10, 20);
+        FoodItem f3 = new FoodItem("PopCorn", 3333, 2, t1, t3, 6, 10, 12);
+
+        Stock st = new Stock();
+        st.addItem(f1);
+        st.addItem(f2);
+        st.addItem(f3);
+
+        System.out.println("Testing method \"getNoOfItems\":");
+        System.out.println("After adding 3 Food items to the Stock, the method \"getNoOfItems\" retuns: " + st.getNumOfItems() + "\n");//should print Honey and PopCorn
+        System.out.print("Testing method \"toString\" - ");
+        System.out.println("the Stock looks like this:\n" + st);
+
+        String list = st.order(5);
+        System.out.println("This is the list to order (items quantity below 5) : " + list);//should print Honey and PopCorn
+        System.out.println("The number of items that can be store at 8 degrees are:  " + st.howMany(8));// should print 16
+        System.out.println("the most expensive item on stock is:\n" + st.mostExpensive());// should print the Honey
+        System.out.println("number of pieces in stock is: " + st.howManyPieces());// should print 16
+
+        /*String[] updateList = {"Milk", "Milk"};
+        System.out.println("\nUpdating Stock with {Milk,Milk}");
+        st.updateStock(updateList);
+        System.out.println("list after update is (2 milks less in stock -> leaving 10 in the stock):\n" + st);
+
+        System.out.println("Min temperature of stock should be: " + st.getTempOfStock()); // should be 7
+
+        Date t4 = new Date(1, 6, 2001);
+        st.removeAfterDate(t4);
+        System.out.println("deleting from stock all items with expiry date before (1/6/2001)\n" +
+                "after deletion the stock looks like this (Milk should be deleted):\n" + st);*/
+
+        System.out.println("\n*********************** END OF STOCK TESTER**************************************");
     }
 }
