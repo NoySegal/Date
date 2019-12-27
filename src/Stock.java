@@ -1,6 +1,3 @@
-//todo check with official .class files
-//todo run testers
-
 /**
  * This class represents a stock object.
  *
@@ -66,7 +63,7 @@ public class Stock {
             i++;
         }
         return -1;
-    } //todo ask in the forum if its okay to return -1 if item not found
+    }
 
     /**
      * Tries to insert a new food item into _stock array, if identical item is existing, it adds to it's quantity.
@@ -207,6 +204,9 @@ public class Stock {
             if (_stock[i].getExpiryDate().before(d)) {
 
                 removeItemAtIndex(i);
+
+                //Checking the item that took the removed item place in the same index
+                i--;
             }
         }
     }
@@ -284,49 +284,35 @@ public class Stock {
         }
     }
 
+    /**
+     * Finds the minimal common temperature between the range of (min to max temperatures) for each item so that the refrigerator should be at that temperature to hold all of the stock items.
+     *
+     * @return the minimal temperature the refrigerator should be to hold all the stock items or Integer.MAX_VALUE if minimum common temperature is not found or array is empty of stock.
+     */
     public int getTempOfStock() {
 
-        
-    }
+        if (_noOfItems == 0) {
+            return Integer.MAX_VALUE;
+        }
 
-    public static void main(String[] args) {
-        System.out.println("\n*********************** START OF STOCK TESTER**************************************");
-        // Stock
-        Date t1 = new Date(1, 1, 2000);
-        Date t2 = new Date(1, 1, 2001);
-        Date t3 = new Date(1, 1, 2002);
-        FoodItem f1 = new FoodItem("Milk", 1111, 12, t1, t2, 7, 10, 5);
-        FoodItem f2 = new FoodItem("Honey", 2222, 2, t1, t3, 6, 10, 20);
-        FoodItem f3 = new FoodItem("PopCorn", 3333, 2, t1, t3, 6, 10, 12);
+        int minTemp = _stock[0].getMinTemperature();
+        int maxTemp = _stock[0].getMaxTemperature();
 
-        Stock st = new Stock();
-        st.addItem(f1);
-        st.addItem(f2);
-        st.addItem(f3);
+        for (int i = 1; i < _noOfItems; i++) {
 
-        System.out.println("Testing method \"getNoOfItems\":");
-        System.out.println("After adding 3 Food items to the Stock, the method \"getNoOfItems\" retuns: " + st.getNumOfItems() + "\n");//should print Honey and PopCorn
-        System.out.print("Testing method \"toString\" - ");
-        System.out.println("the Stock looks like this:\n" + st);
+            if (_stock[i].getMaxTemperature() < minTemp || _stock[i].getMinTemperature() > maxTemp) {
+                return Integer.MAX_VALUE;
+            }
 
-        String list = st.order(5);
-        System.out.println("This is the list to order (items quantity below 5) : " + list);//should print Honey and PopCorn
-        System.out.println("The number of items that can be store at 8 degrees are:  " + st.howMany(8));// should print 16
-        System.out.println("the most expensive item on stock is:\n" + st.mostExpensive());// should print the Honey
-        System.out.println("number of pieces in stock is: " + st.howManyPieces());// should print 16
+            if (_stock[i].getMinTemperature() > minTemp) {
+                minTemp = _stock[i].getMinTemperature();
+            }
 
-        /*String[] updateList = {"Milk", "Milk"};
-        System.out.println("\nUpdating Stock with {Milk,Milk}");
-        st.updateStock(updateList);
-        System.out.println("list after update is (2 milks less in stock -> leaving 10 in the stock):\n" + st);
+            if (_stock[i].getMaxTemperature() < maxTemp) {
+                maxTemp = _stock[i].getMaxTemperature();
+            }
+        }
 
-        System.out.println("Min temperature of stock should be: " + st.getTempOfStock()); // should be 7
-
-        Date t4 = new Date(1, 6, 2001);
-        st.removeAfterDate(t4);
-        System.out.println("deleting from stock all items with expiry date before (1/6/2001)\n" +
-                "after deletion the stock looks like this (Milk should be deleted):\n" + st);*/
-
-        System.out.println("\n*********************** END OF STOCK TESTER**************************************");
+        return minTemp;
     }
 }
